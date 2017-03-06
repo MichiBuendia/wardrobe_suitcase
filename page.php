@@ -21,7 +21,7 @@ before();
 // controlla che cosa devi fare
 switch ($params['action']){
   case "move" :
-   move($params['id']);
+  $msg = move($params['id']);
    break;
   case "remove" :
    remove($params['id']);
@@ -31,4 +31,5 @@ switch ($params['action']){
    break;
 }
 
+echo $msg;
 display();

@@ -25,8 +25,8 @@ function boot()
 
   // parse input (VALIDARE INPUT E METTERE DEFAULT!!)
   $action = (isset($_GET['action']) && ($_GET['action'] =="move" OR $_GET['action'] == "remove")) ? $_GET['action'] : "";
-  $id= (isset($_GET['id']) && is_numeric($_GET['id'])) ? $_GET['id'] : "0";
-
+  $id= isset($_GET['id'])  ? trim($_GET['id']) : "-1";
+//$out=(isset($_GET['out'])  ? "1" : "-1";
  return (["action"=>$action, "id"=> $id]);
 
 
@@ -37,19 +37,34 @@ function boot()
 
 function move($id)
 {
-
-
 // sposta l'elemento identificato dall'indice $id dall'array sorgente al destinatario
 
 $src=$_SESSION['armadio'];
 $dest=$_SESSION['valigia'];
 
+$max=get_max();
+if(get_size($dest)>=$max){
+  return ("la valigia è piena");
+}
+
 // controlla che ci sia l'elemento origine
 if (isset($src[$id])){
 
-$dest[]=$src[$id];
-unset ($src[$id]);
+  //se non esiste l'elemento nell'array di destinazione lo creo e lo metto a qta 1
+  if (!isset($dest[$id])){
+    $dest[$id]=1;
+  }else{
+    $dest[$id]++;
+  }
 
+  //adesso decremento l'elemento che ho spostato
+
+  $src[$id]--;
+
+  //se ho finito gli elementi cancello il valore
+  if ($src[$id]==0){
+    unset($src[$id]);
+  }
 }
 
 $_SESSION['armadio']= $src ;
@@ -63,10 +78,27 @@ function remove($id){
 
   $src=$_SESSION['valigia'];
   $dest=$_SESSION['armadio'];
+
+
+  // controlla che ci sia l'elemento origine
   if (isset($src[$id])){
 
-  $dest[]=$src[$id];
-  unset ($src[$id]);
+    //se non esiste l'elemento nell'array di destinazione lo creo e lo metto a qta 1
+    if (!isset($dest[$id])){
+      $dest[$id]=1;
+    }else{
+      $dest[$id]++;
+    }
+
+    //adesso decremento l'elemento che ho spostato
+
+    $src[$id]--;
+
+    //se ho finito gli elementi cancello il valore
+    if ($src[$id]==0){
+      unset($src[$id]);
+    }
+
 
   }
 
@@ -88,9 +120,9 @@ function display()
 	$data=$_SESSION['armadio'];
 
 	echo "<ul>";
-	foreach($data as $id=>$item){
+	foreach($data as $abito=>$qta){
 
-		echo "<li>" . $item  . " <a href=\"?action=move&id=$id\">Sposta</a> </li>";
+		echo "<li> $abito $qta <a href=\"?action=move&id=$abito\">Sposta</a> </li>";
 
 	}
 
@@ -102,15 +134,15 @@ function display()
 
 	echo "<ul>";
 
-	foreach($data as $id=>$item){
+  $count = 0;
+	foreach($data as $abito=>$qta){
 
 
 //inserisco qui il link per spostare l'elemento cambiando però move in remove!
-		echo "<li>" . $item  . "<a href=\"?action=remove&id=$id\">Sposta</a></li>";
+		echo "<li> $abito  $qta <a href=\"?action=remove&id=$abito\">Sposta</a></li>";
 
 	}
 	echo "</ul>";
-
 
 }
 
@@ -151,4 +183,17 @@ function before()
     boot();
   }
 
+}
+
+function get_max(){
+  global $config;
+  return $config['max'];
+}
+
+function get_size($data){
+  $tot=0;
+  foreach ($data as $qta){
+    $tot+=$qta;
+  }
+  return $tot;
 }
