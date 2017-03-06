@@ -19,11 +19,16 @@ include "header.php";
 before();
 
 // controlla che cosa devi fare
-if ($params['action'] =="move"){
-
+switch ($params['action']){
+  case "move" :
    move($params['id']);
-
-
+   break;
+  case "remove" :
+   remove($params['id']);
+   break;
+  default :
+   echo "";
+   break;
 }
 
 display();

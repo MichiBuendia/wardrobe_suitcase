@@ -24,7 +24,7 @@ function boot()
 
 
   // parse input (VALIDARE INPUT E METTERE DEFAULT!!)
-  $action = (isset($_GET['action']) && $_GET['action']) =="move" ? "move" : "";
+  $action = (isset($_GET['action']) && ($_GET['action'] =="move" OR $_GET['action'] == "remove")) ? $_GET['action'] : "";
   $id= (isset($_GET['id']) && is_numeric($_GET['id'])) ? $_GET['id'] : "0";
 
  return (["action"=>$action, "id"=> $id]);
@@ -57,6 +57,29 @@ $_SESSION['valigia'] = $dest;
 
 }
 
+
+// inizializzo una funzione remove per far fare il percorso inverso agli elementi
+function remove($id){
+
+  $src=$_SESSION['valigia'];
+  $dest=$_SESSION['armadio'];
+  if (isset($src[$id])){
+
+  $dest[]=$src[$id];
+  unset ($src[$id]);
+
+  }
+
+  $_SESSION['valigia']= $src ;
+  $_SESSION['armadio'] = $dest;
+
+}
+
+
+
+
+
+
 function display()
 {
 
@@ -79,9 +102,11 @@ function display()
 
 	echo "<ul>";
 
-	foreach($data as $item){
+	foreach($data as $id=>$item){
 
-		echo "<li>" . $item  . "</li>";
+
+//inserisco qui il link per spostare l'elemento cambiando però move in remove!
+		echo "<li>" . $item  . "<a href=\"?action=remove&id=$id\">Sposta</a></li>";
 
 	}
 	echo "</ul>";
@@ -121,12 +146,9 @@ function before()
 { //se è settata la var reset  -> resetta sessione
 
   if (isset($_GET['reset'])) {
-    
+
     session_destroy();
     boot();
   }
-
-
-
 
 }
