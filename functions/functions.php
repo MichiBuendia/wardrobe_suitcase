@@ -42,8 +42,11 @@ function move($id)
 $src=$_SESSION['armadio'];
 $dest=$_SESSION['valigia'];
 
-$max=get_max();
-if(get_size($dest)>=$max){
+$max_vol = get_max_vol();
+
+// $max=get_max();
+
+if(is_valigia_full($id, $dest, $max_vol)){
   return ("la valigia è piena");
 }
 
@@ -115,6 +118,7 @@ function remove($id){
 function display()
 {
 
+  $clothes=get_abiti();
 
 	echo "armadio";
 	$data=$_SESSION['armadio'];
@@ -122,7 +126,7 @@ function display()
 	echo "<ul>";
 	foreach($data as $abito=>$qta){
 
-		echo "<li> $abito $qta <a href=\"?action=move&id=$abito\">Sposta</a> </li>";
+		echo "<li>" . $clothes[$abito]['name'] . " [$qta] <a href=\"?action=move&id=$abito\">Sposta</a> </li>";
 
 	}
 
@@ -196,4 +200,31 @@ function get_size($data){
     $tot+=$qta;
   }
   return $tot;
+}
+
+function get_abiti(){
+global $config;
+return $config['clothes'];
+}
+
+function get_max_vol(){
+global $config;
+return $config['max_vol'];
+}
+
+
+function is_valigia_full($abito, $valigia, $max_vol){
+//somma i volumi di tutti gli abiti nella valigia e il nuovo
+//abito che vado ad inserire e confronta il totale con il val max
+
+$clothes = get_abiti();
+$tot_vol = $clothes[$abito]['vol'];
+foreach($valigia as $key=>$value){
+  $tot_vol += ($clothes[$key]['vol'] * $value);
+}
+if ($tot_vol>$max_vol){
+  return 1;
+}
+
+return 0;
 }
